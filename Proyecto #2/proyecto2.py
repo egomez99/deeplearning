@@ -35,6 +35,7 @@ weights = sio.loadmat('ex3weights.mat')
 
 y = np.array(inputData["y"])
 X = np.array(inputData["X"])
+print("x:{}".format(X.shape))
 Theta1 = np.array(weights["Theta1"])
 Theta2 = np.array(weights["Theta2"])
 
