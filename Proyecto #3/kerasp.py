@@ -3,9 +3,10 @@ from keras.models import Sequential, load_model
 from keras.layers.core import Dense,Activation,Dropout
 import matplotlib.pyplot as plt
 import numpy as np
+from keras.utils import np_utils
 import os
 
-EPOCHS=1000
+EPOCHS=10
 batch_size=128
 
 (X_train,Y_train),(X_test,Y_test)=mnist.load_data()
@@ -35,6 +36,12 @@ X_test=X_test.reshape(len(X_test),784)
 X_test = X_test.astype('float32')
 X_test/=255
 
+n_classes = 10
+print("Shape before one-hot encoding: ", Y_train.shape)
+Y_train = np_utils.to_categorical(Y_train, n_classes)
+Y_test = np_utils.to_categorical(Y_test, n_classes)
+print("Shape after one-hot encoding: ", Y_train.shape)
+
 
 model =Sequential()
 model.add(Dense(512,input_shape=(784,)))
@@ -45,20 +52,11 @@ model.add(Dense(512))
 model.add(Activation('relu'))
 model.add(Dropout(0.2))
 
-model.add(Dense(512))
-model.add(Activation('relu'))
-model.add(Dropout(0.2))
 
 model.add(Dense(10))
-model.add(Activation('relu'))
+model.add(Activation('softmax'))
 
-model.add(Dense(10))
-model.add(Activation('relu'))
-
-model.add(Dense(1))
-model.add(Activation('relu'))
-
-model.compile(loss='mean_squared_error', metrics=['accuracy'],optimizer='sgd')
+model.compile(loss='categorical_crossentropy', metrics=['accuracy'],optimizer='adam')
 
 model.fit(X_train, Y_train,
           batch_size=batch_size,
