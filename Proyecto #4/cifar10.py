@@ -1,12 +1,13 @@
 import numpy as np
 import sys
 from keras.datasets import cifar10
-from keras.models import Sequential
-from keras.layers.core import Dense,Dropout,Flatten
+from keras.models import Sequential,Model
+from keras.layers.core import Dense,Dropout,Flatten,Activation
 from keras.layers.pooling import MaxPooling2D
-from keras.layers.convolutional import Conv2D
+from keras.layers.convolutional import Conv2D, Convolution2D
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
+from keras.layers.normalization import BatchNormalization
 import os
 from os import path
 
@@ -77,7 +78,8 @@ def arch_2(entry_shape):
 
 
     return model
-def arch_3():    
+    
+def arch_3(entry_shape):
     model=Sequential()
     return model
 def arch_4():
@@ -91,6 +93,10 @@ def params_1(model):
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 def params_2(model):
+    global epochs_number,batch_size
+    epochs_number=2
+    batch_size=128
+    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 def params_3(model):
     return model
@@ -127,6 +133,15 @@ def plotAccuracy(history):
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
+    
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    #plt.savefig("LOLO.png")
 
 
 def building_training(arch_type,params_option,weights_option):
@@ -139,7 +154,6 @@ def building_training(arch_type,params_option,weights_option):
     Y_test=to_categorical(Y_test,NUM_CLASSES)
 
     model=arch_options[arch_type](X_train.shape[1:])
-
     arch_name=arch_options[arch_type].__name__
     param_name=param_options[params_option].__name__
 
@@ -152,7 +166,7 @@ def building_training(arch_type,params_option,weights_option):
         print("ENTRO A ENTRENAR EL MODELO")
         model=param_options[params_option](model)
         history=model.fit(X_train,Y_train,batch_size=batch_size,epochs=epochs_number,validation_data=(X_test,Y_test),shuffle=True)
-        #plotAccuracy(history)
+        plotAccuracy(history)
         scores = model.evaluate(X_test, Y_test)
         if not path.exists(path.dirname(FINAL_PATH)):
             os.makedirs(path.dirname(FINAL_PATH))
