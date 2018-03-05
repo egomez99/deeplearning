@@ -5,6 +5,8 @@ from keras.models import Sequential,Model
 from keras.layers.core import Dense,Dropout,Flatten,Activation
 from keras.layers.pooling import MaxPooling2D
 from keras.layers.convolutional import Conv2D, Convolution2D
+from keras.layers import Input, AveragePooling2D, ZeroPadding2D, merge, Reshape
+from keras.optimizers import SGD
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 from keras.layers.normalization import BatchNormalization
@@ -79,11 +81,86 @@ def arch_2(entry_shape):
 
     return model
     
-def arch_3(entry_shape):
-    model=Sequential()
+def VGG19(entry_shape):
+    model = Sequential()
+    model.add(ZeroPadding2D((1,1),input_shape=entry_shape))
+    model.add(Convolution2D(64, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(64, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(128, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(128, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(256, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(ZeroPadding2D((1,1)))
+    model.add(Convolution2D(512, 3, 3, activation='relu'))
+    model.add(MaxPooling2D((2,2), strides=(2,2)))
+
+    # Add Fully Connected Layer
+    model.add(Flatten())
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(10, activation='softmax'))
     return model
-def arch_4():
-    model=Sequential()
+def AlexNet(entry_shape):
+    # Define the Model
+    model = Sequential()
+    # model.add(Conv2D(96, (11,11), strides=(4,4), activation='relu', padding='same', input_shape=(img_height, img_width, channel,)))
+    # for original Alexnet
+    model.add(Conv2D(96, (3,3), strides=(2,2), activation='relu', padding='same', input_shape=entry_shape))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2,2)))
+    # Local Response normalization for Original Alexnet
+    model.add(BatchNormalization())
+
+    model.add(Conv2D(256, (5,5), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(3, 3), strides=(2,2)))
+    # Local Response normalization for Original Alexnet
+    model.add(BatchNormalization())
+
+    model.add(Conv2D(384, (3,3), activation='relu', padding='same'))
+    model.add(Conv2D(384, (3,3), activation='relu', padding='same'))
+    model.add(Conv2D(256, (3,3), activation='relu', padding='same'))
+    model.add(MaxPooling2D(pool_size=(3, 3), strides=(2,2)))
+    # Local Response normalization for Original Alexnet
+    model.add(BatchNormalization())
+
+    model.add(Flatten())
+    model.add(Dense(4096, activation='tanh'))
+    model.add(Dropout(0.5))
+    model.add(Dense(4096, activation='tanh'))
+    model.add(Dropout(0.5))
+    model.add(Dense(10, activation='softmax'))
     return model    
 
 def params_1(model):
@@ -99,6 +176,12 @@ def params_2(model):
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 def params_3(model):
+    global epochs_number,batch_size
+    epochs_number=200
+    batch_size=128
+    # Learning rate is changed to 0.001
+    sgd = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 def params_4(model):
     return model
@@ -183,8 +266,8 @@ def building_training(arch_type,params_option,weights_option):
 arch_options={
     '1':VGG16,
     '2':arch_2,
-    '3':arch_3,
-    '4':arch_4
+    '3':VGG19,
+    '4':AlexNet
 }
 
 param_options={
