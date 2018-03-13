@@ -7,7 +7,9 @@ from keras.layers.pooling import MaxPooling2D
 from keras.layers.convolutional import Conv2D, Convolution2D
 from keras.layers import Input, AveragePooling2D, ZeroPadding2D, merge, Reshape
 from keras.optimizers import SGD
-from keras.utils import to_categorical
+from keras.utils import to_categorical, plot_model
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from keras.layers.normalization import BatchNormalization
 from keras import regularizers
@@ -133,53 +135,37 @@ def arch_2(entry_shape):
     
 def VGG19(entry_shape):
     model = Sequential()
-    model.add(ZeroPadding2D((1,1),input_shape=entry_shape))
-    model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(64, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2,2), strides=(2,2)))
+    model.add(Conv2D(64, (3, 3), input_shape=entry_shape,activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
 
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(128, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(128, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2,2), strides=(2,2)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(128, (3, 3), activation='relu'))
 
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(256, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2,2), strides=(2,2)))
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
 
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2,2), strides=(2,2)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
 
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(ZeroPadding2D((1,1)))
-    model.add(Convolution2D(512, 3, 3, activation='relu'))
-    model.add(MaxPooling2D((2,2), strides=(2,2)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
 
     # Add Fully Connected Layer
     model.add(Flatten())
     model.add(Dense(4096, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(1024, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(10, activation='softmax'))
     return model
@@ -226,18 +212,43 @@ def params_2(model):
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 def params_3(model):
-    global epochs_number,batch_size
-    epochs_number=200
-    batch_size=128
+    global epochs_number, batch_size
+    epochs_number = 1
+    batch_size = 32
     # Learning rate is changed to 0.001
     sgd = SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
-    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=sgd,      metrics=['accuracy'])
     return model
+
+
 def params_4(model):
+    global epochs_number, batch_size
+    epochs_number = 1
+    batch_size = 64
+    sgd = SGD(lr=0.1, decay=1e-6, nesterov=False)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=sgd,      metrics=['accuracy'])
     return model
+
+
 def params_5(model):
+    global epochs_number, batch_size
+    epochs_number = 10
+    batch_size = 64
+    sgd = SGD(lr=0.01, momentum=0.9, decay=1e-6, nesterov=False)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=sgd,      metrics=['accuracy'])
     return model
+
+
 def params_6(model):
+    global epochs_number, batch_size
+    epochs_number = 3
+    batch_size = 128
+    sgd = SGD(lr=0.01, decay=1e-6, nesterov=True)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=sgd,      metrics=['accuracy'])
     return model
 def params_7(model):
     return model
@@ -258,23 +269,40 @@ def load_weights(model,weights_option,arch_name,param_name,w_option):
     else:
         return False
 
-def plotAccuracy(history):
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
+def plotAccuracy(cnn, FINAL_GRAPHIC_FIGURE):
+    fig1 = plt.figure(0)
+    print('cnn.history: ' + str(cnn.history))
+    print('cnn.history acc: ' + str(cnn.history['acc']))
+    print('cnn.history val_acc: ' + str(cnn.history['val_acc']))
+    plt.plot(cnn.history['acc'], 'r')
+    plt.plot(cnn.history['val_acc'], 'g')
+    plt.xticks(np.arange(0, 11, 2.0))
+    plt.rcParams['figure.figsize'] = (8, 6)    
+    plt.xlabel('Num of Epochs')
+    plt.ylabel('Accuracy')
+    plt.title("Training Accuracy vs Validation Accuracy")
     plt.legend(['train', 'test'], loc='upper left')
+    print ('Saving PNG1: '+ str(FINAL_GRAPHIC_FIGURE+'1.png'))
+    plt.draw()
+    fig1.savefig(str(FINAL_GRAPHIC_FIGURE+'1.png'), dpi=100)
     plt.show()
     
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
+
+    fig2 = plt.figure(1)
+    print('cnn.history loss: ' + str(cnn.history['loss']))
+    print('cnn.history val_loss: ' + str(cnn.history['val_loss']))
+    plt.plot(cnn.history['loss'], 'r')
+    plt.plot(cnn.history['val_loss'], 'g')
+    plt.xticks(np.arange(0, 11, 2.0))
+    plt.rcParams['figure.figsize'] = (8, 6)
+    plt.xlabel('Num of Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training Loss vs Validation Loss')
     plt.legend(['train', 'test'], loc='upper left')
+    print ('Saving PNG2: '+ str(FINAL_GRAPHIC_FIGURE+'2.png'))
+    plt.draw()
+    fig2.savefig(str(FINAL_GRAPHIC_FIGURE+'2.png'), dpi=100)
     plt.show()
-    #plt.savefig("LOLO.png")
 
 
 def building_training(arch_type,params_option,weights_option):
@@ -294,12 +322,15 @@ def building_training(arch_type,params_option,weights_option):
     FINAL_PATH=path.join(path.abspath(""),arch_name,param_name,weights_option,"weights.h5")
     if weights_defined:
         model=param_options[params_option](model)
-        scores = model.evaluate(X_test, Y_test)
+        scores = model.evaluate(X_test, Y_test, verbose=1)
     else:
         print("ENTRO A ENTRENAR EL MODELO")
         model=param_options[params_option](model)
         history=model.fit(X_train,Y_train,batch_size=batch_size,epochs=epochs_number,validation_data=(X_test,Y_test),shuffle=True)
-        plotAccuracy(history)
+        FINAL_GRAPHIC_FIGURE = path.join(path.abspath(""),arch_name, param_name,weights_option, "figure_model")
+        if not path.exists(path.dirname(FINAL_GRAPHIC_FIGURE)):
+            os.makedirs(path.dirname(FINAL_GRAPHIC_FIGURE))
+        plotAccuracy(history, FINAL_GRAPHIC_FIGURE)
         scores = model.evaluate(X_test, Y_test)
         if not path.exists(path.dirname(FINAL_PATH)):
             os.makedirs(path.dirname(FINAL_PATH))
@@ -307,7 +338,15 @@ def building_training(arch_type,params_option,weights_option):
 
 
 
-    
+        # Graphic Model
+    FINAL_GRAPHIC_MODEL = path.join(path.abspath(
+        ""), arch_name, param_name, weights_option, "graphic_model.svg")
+    plot_model(model,
+               to_file=FINAL_GRAPHIC_MODEL,
+               show_layer_names=True,
+               show_shapes=True,
+               rankdir="TB")
+    print(model.summary())
 
     print('Loss: %.3f' % scores[0])
     print('Accuracy: %.3f' % scores[1])
