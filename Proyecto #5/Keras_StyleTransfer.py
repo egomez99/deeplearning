@@ -13,7 +13,7 @@ from scipy.optimize import fmin_l_bfgs_b
 from scipy.misc import imsave
 
 #cell 2
-content_image=Image.open('content.png')
+content_image=Image.open('elephant.jpg')
 content_image=content_image.resize((512,512))
 
 #cell 3

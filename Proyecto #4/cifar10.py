@@ -341,11 +341,7 @@ def building_training(arch_type,params_option,weights_option):
         # Graphic Model
     FINAL_GRAPHIC_MODEL = path.join(path.abspath(
         ""), arch_name, param_name, weights_option, "graphic_model.svg")
-    plot_model(model,
-               to_file=FINAL_GRAPHIC_MODEL,
-               show_layer_names=True,
-               show_shapes=True,
-               rankdir="TB")
+#    plot_model(model,to_file=FINAL_GRAPHIC_MODEL,show_layer_names=True,show_shapes=True,rankdir="TB")
     print(model.summary())
 
     print('Loss: %.3f' % scores[0])
